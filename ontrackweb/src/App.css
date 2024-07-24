@@ -1,0 +1,177 @@
+/* General body styling */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f0f0;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* Main app container */
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* Heading styling */
+h1 {
+  color: #0056b3;
+}
+
+/* Input group styling */
+.input-group {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.search-input {
+  flex: 1;
+  margin: 0 10px;
+}
+
+.search-input input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #0056b3;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.search-input input:focus {
+  border-color: #003d7a;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.search-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #0056b3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #003d7a;
+}
+
+/* Autosuggest styling */
+.react-autosuggest__container {
+  position: relative;
+}
+
+.react-autosuggest__input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #0056b3;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.react-autosuggest__input:focus {
+  border-color: #003d7a;
+  outline: none;
+}
+
+.react-autosuggest__suggestions-container {
+  position: absolute;
+  width: 100%;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+.react-autosuggest__suggestions-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.react-autosuggest__suggestion {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.react-autosuggest__suggestion--highlighted {
+  background-color: #0056b3;
+  color: #fff;
+}
+
+.react-autosuggest__suggestion:last-child {
+  border-bottom: none;
+}
+
+/* Results list styling */
+.results-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.results-list li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  border-radius: 20px;
+}
+
+.results-list li:last-child {
+  border-bottom: none;
+}
+
+/* Background color classes for different train types */
+.red-background {
+  background-color: rgb(171, 0, 32);
+  color: white;
+}
+
+.blue-background {
+  background-color: rgb(0, 96, 240);
+  color: white;
+}
+
+.dark-blue-background {
+  background-color: rgb(34, 29, 71);
+  color: white;
+}
+
+.no-background {
+  background-color: transparent;
+}
+
+/* Detailed item styling */
+.detailed-item {
+  list-style-type: none;
+  border-radius: 20px;
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 600px) {
+  .input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input {
+    margin: 10px 0;
+  }
+
+  .search-button {
+    width: 100%;
+    margin: 10px 0;
+  }
+}
