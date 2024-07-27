@@ -8,15 +8,7 @@ body {
 }
 
 /* Main app container */
-.app {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  text-align: center;
-}
+
 
 /* Heading styling */
 h1 {
@@ -88,7 +80,7 @@ h1 {
 .react-autosuggest__suggestions-container {
   position: absolute;
   width: 100%;
-  border: 1px solid #ccc;
+  /* border: 1px solid #ccc; */
   background-color: #fff;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -133,6 +125,56 @@ h1 {
   border-bottom: none;
 }
 
+
+.train-search {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.train-search .title {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.train-search .input-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.train-search .search-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.train-search .search-button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.train-search .search-button:hover {
+  background-color: #0056b3;
+}
+
+
+
+
+
+
+
 /* Background color classes for different train types */
 .red-background {
   background-color: rgb(171, 0, 32);
@@ -149,9 +191,29 @@ h1 {
   color: white;
 }
 
+.gray-background {
+  background-color: rgb(48, 48, 48);
+  color: white;
+}
+
+.yellow-background {
+  background-color: rgb(255, 255, 0);
+  color: black;
+}
+
+.wb-background {
+  /* background-image: url('./Westbahn.png'); */
+  /* background-size: contain; */
+  /* background-position: 20% center; Shift the background image 20% to the left */
+  color: black;
+  background-color: yellowgreen
+}
+
 .no-background {
   background-color: transparent;
 }
+
+
 
 /* Detailed item styling */
 .detailed-item {

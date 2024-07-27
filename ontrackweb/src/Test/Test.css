@@ -1,0 +1,148 @@
+.test {
+    font-family: Arial, sans-serif;
+}
+
+.train-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.train-item {
+    margin-bottom: 20px;
+}
+
+.train-summary {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+}
+.train-line-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.train-line {
+    border: 1px solid #ddd;
+    padding: 5px;
+    border-radius: 4px;
+    flex: 1; /* Adjust as needed for responsiveness */
+    text-align: center;
+    margin-right: 5px; /* Space between train lines */
+}
+
+.change-info {
+    color: #f00; /* Change color to indicate change info */
+    font-weight: bold;
+    margin: 5px 0; /* Space above and below the change info */
+}
+
+.walking {
+    background-color: #eee; /* Adjust color to indicate walking */
+    color: #333;
+}
+
+/* Ensure that .warning is visible and distinct */
+.warning {
+    background-color: yellow; /* Yellow background */
+    color: black; /* Text and icon color, adjust as needed */
+    padding: 10px;
+    border-radius: 4px; /* Optional: to make the background rounded */
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between the icon and the text */
+}
+
+/* Optional: Ensure the FontAwesome icon is visible and aligned */
+.warning .fa-exclamation-triangle {
+    color: black; /* Adjust icon color to ensure it's visible on yellow background */
+}
+
+.train-times {
+    margin-top: 10px;
+}
+
+.toggle-details {
+    margin-top: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+}
+
+.toggle-icon {
+    margin-left: 10px;
+}
+
+.train-details {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    transition: max-height 0.3s ease-out;
+}
+
+.train-details-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.detailed-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.yellow-background {
+    background-color: yellow;
+}
+
+.red-background {
+    background-color: red;
+}
+
+.blue-background {
+    background-color: blue;
+}
+
+.dark-blue-background {
+    background-color: darkblue;
+}
+
+.gray-background {
+    background-color: gray;
+}
+
+.wb-background {
+    background-color: white;
+}
+
+.no-background {
+    background-color: transparent;
+}
+
+.change-info {
+    margin-top: 5px;
+    padding: 5px;
+    background-color: #f7f7f7;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.test {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+}

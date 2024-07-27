@@ -1,5 +1,7 @@
 import {useState} from 'react';
 import Autosuggest from 'react-autosuggest';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrain, faClock, faSubway, faArrowRight, faHourglassHalf, faExchangeAlt, faSignOutAlt, faExclamationTriangle, faChevronDown, faChevronUp, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 // Helper function to fetch suggestions
 export const fetchSuggestions = async (query, setSuggestions) => {
@@ -70,12 +72,37 @@ const fetchPlatformDetails = async (fromId, toId) => {
 };
 
 // Function to fetch journeys
-export const fetchJourneys = async (fromId, toId, setJourneys) => {
+export const fetchJourneys = async (fromId, toId, travelTime, setJourneys, changeTime, maxChanges, excludedTrains) => {
     try {
-        const response = await fetch(
-            `https://v6.db.transport.rest/journeys?from=${fromId}&to=${toId}`
-        );
+        // Construct the URL based on whether travelTime is provided
+        let url = `https://v6.db.transport.rest/journeys?from=${fromId}&to=${toId}`;
+        if (travelTime) {
+            url += `&departure=${travelTime}`;
+        }
+
+        if (changeTime) {
+            url += `&transferTime=${changeTime}`;
+        }
+
+        if (maxChanges) {
+            url += `&transfers=${maxChanges}`;
+        }
+
+        for (const train of excludedTrains) {
+            if (train == "ICE") {
+                url += `&nationalExpress=false`;
+            }
+            if (train == "IC") {
+                url += `&national=false`;
+            }
+        }
+
+        const response = await fetch(url);
         const result = await response.json();
+
+        if (result.journeys == undefined) {
+            result.journeys = [];
+        }
 
         // Fetch platform details if walking is true
         if (result.walking) {
@@ -89,6 +116,7 @@ export const fetchJourneys = async (fromId, toId, setJourneys) => {
         console.error('Error fetching journeys:', error);
     }
 };
+
 
 // Optionally, you can integrate platform details into the journey legs
 const integratePlatformDetails = (journeys, platformDetails) => {
@@ -108,3 +136,126 @@ const fetchArrivalPlatform = async (fromId, toId) => {
         return {};
     }
 };
+
+const calculateChangeTimeInMin = (journey) => {}
+
+export const calculateChangeTime = (arrival, departure) => {
+    const arrivalTime = new Date(arrival);
+    const departureTime = new Date(departure);
+    const duration = Math.abs(departureTime - arrivalTime);
+    const hours = Math.floor(duration / 3600000);
+    const minutes = Math.floor((duration % 3600000) / 60000);
+    return `${hours}h ${minutes}m`;
+};
+
+export const calculateTotalTravelTime = (legs) => {
+    if (!legs || legs.length === 0) 
+        return '--';
+    const departureTime = new Date(legs[0].departure);
+    const arrivalTime = new Date(legs[legs.length - 1].arrival);
+    const duration = Math.abs(arrivalTime - departureTime);
+    const hours = Math.floor(duration / 3600000);
+    const minutes = Math.floor((duration % 3600000) / 60000);
+    return `${hours}h ${minutes}m`;
+};
+
+export const calculateChangeTimeInMinutes = (arrival, departure) => {
+    const arrivalTime = new Date(arrival);
+    const departureTime = new Date(departure);
+    const durationInMs = departureTime - arrivalTime;
+    return Math.floor(durationInMs / 1000 / 60); // Convert milliseconds to minutes
+};
+
+export const countIssues = (legs) => {
+    if (!legs || legs.length === 0) 
+        return 0;
+    let issueCount = 0;
+
+    for (let i = 0; i < legs.length - 1; i++) {
+        const currentLeg = legs[i];
+        const nextLeg = legs[i + 1];
+        if (currentLeg && nextLeg) {
+            const changeTimeInMinutes = calculateChangeTimeInMinutes(
+                currentLeg.arrival,
+                nextLeg.departure
+            );
+            if (changeTimeInMinutes > 60) {
+                issueCount++;
+            }
+        }
+    }
+
+    return issueCount;
+};
+
+export const getClassForTrain = (line) => {
+    if (!line) 
+        return 'no-background';
+    const trainType = line.productName || '';
+    const trainName = line.name || '';
+
+
+    if (trainName.includes('BusSV')) {
+        return 'yellow-background';
+    } 
+
+    if ([
+        'IC',
+        'EC',
+        'ICE',
+        'RJ',
+        'RJX',
+        'D',
+        'FR'
+    ].includes(trainType)) {
+        return 'red-background';
+    } else if ([
+        'RE',
+        'REX',
+        'R',
+        'RB',
+        'BRB',
+        'S'
+    ].includes(trainType)) {
+        return 'blue-background';
+    } else if (['NJ', 'EN'].includes(trainType)) {
+        return 'dark-blue-background';
+    } else if (['Bus'].includes(trainType)) {
+        return 'gray-background';
+    } else if (['WB'].includes(trainType)) {
+        return 'wb-background';
+    } else {
+        return 'no-background';
+    }
+};
+
+export const formatChangeDuration = (arrivalTime, departureTime) => {
+    const arrivalDate = new Date(arrivalTime);
+    const departureDate = new Date(departureTime);
+    const differenceInMillis = departureDate - arrivalDate;
+    const differenceInMinutes = Math.round(differenceInMillis / (1000 * 60));
+    const hours = Math.floor(differenceInMinutes / 60);
+    const minutes = differenceInMinutes % 60;
+    return `${hours}h ${minutes}min`;
+};
+
+export const formatChangeInfo = (prevLeg, nextLeg) => {
+    const arrivalPlatform = prevLeg.departurePlatform || '--';
+    const departurePlatform = nextLeg.departurePlatform || '--';
+    const arrivalTime = formatTime(prevLeg.arrival);
+    const departureTime = formatTime(nextLeg.departure);
+    const changeDuration = calculateChangeTime(prevLeg.arrival, nextLeg.departure);
+
+    return (
+        <div>
+            <div>{`Change from ${arrivalPlatform} to ${departurePlatform} (${arrivalTime} - ${departureTime})`}</div>
+            <div>{`Change Duration: ${formatChangeDuration(prevLeg.arrival, nextLeg.departure)}`}</div>
+            {calculateChangeTimeInMinutes(prevLeg.arrival, nextLeg.departure) > 60 && (
+                <div className="warning">
+                    <FontAwesomeIcon icon={faExclamationTriangle} /> Long Change Time
+                </div>
+            )}
+        </div>
+    );
+};
+
