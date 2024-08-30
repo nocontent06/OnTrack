@@ -1,9 +1,12 @@
 import {useState} from 'react';
+
+
 import Autosuggest from 'react-autosuggest';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrain, faClock, faSubway, faArrowRight, faHourglassHalf, faExchangeAlt, faSignOutAlt, faExclamationTriangle, faChevronDown, faChevronUp, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 // Helper function to fetch suggestions
+
 export const fetchSuggestions = async (query, setSuggestions) => {
     try {
         const response = await fetch(
@@ -163,6 +166,13 @@ export const calculateTotalTravelTime = (legs) => {
     return `${hours}h ${minutes}m`;
 };
 
+export const getTripDetails = (leg) => {
+    if (!leg || leg.length === 0) 
+        return '--';
+    const tripId = leg.tripId;
+    return tripId;
+}
+
 export const calculateChangeTimeInMinutes = (arrival, departure) => {
     const arrivalTime = new Date(arrival);
     const departureTime = new Date(departure);
@@ -312,4 +322,3 @@ export const isDifferentArrival = (leg) => {
 export const isDifferentDeparture = (leg) => {
     return leg.plannedDeparture !== leg.departure;
 }
-

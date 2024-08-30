@@ -15,7 +15,7 @@ import {
     faBars,
     faLocationDot
 } from '@fortawesome/free-solid-svg-icons';
-import {BrowserRouter as Router, Route, Link, Routes} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Link, Routes, useNavigate} from 'react-router-dom';
 import {
     fetchJourneys,
     calculateChangeTime,
@@ -32,14 +32,32 @@ import {
     TravelTimeDropdown,
     isDifferentArrival,
     isDifferentDeparture,
-    hasDelays
+    hasDelays,
+    getTripDetails
 } from '../components/GetTrainData';
+import {
+    TrainDetails
+} from '../components/TrainDetails';
 import './Test.css';
 import TrainSearch from './TrainSearch'; // New component for train search
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
 
 const Test = () => {
+
+    const navigate = useNavigate();
+
+
+    const redirectToTripDetails = (leg) => {
+        console.log("Button clicked...")
+        const tripId = getTripDetails(leg);
+        if (tripId !== '--') {
+            const encodedTripId = tripId.replace(/#/g, '%23');
+            console.log("Encoded trip ID 2:", encodedTripId);
+            navigate(`/train-details/?tripId=${encodedTripId}`);
+        }
+    };
+
     const [fromQuery, setFromQuery] = useState('');
     const [toQuery, setToQuery] = useState('');
     const [fromSuggestions, setFromSuggestions] = useState([]);
@@ -104,7 +122,7 @@ const Test = () => {
                 setJourneys,
                 changeTime,
                 maxChanges,
-                excludedTrains
+                excludedTrains,
             );
         }
     };
@@ -136,10 +154,12 @@ const Test = () => {
         );
     };
 
+
+    
+
     console.log("FromId: ", fromId, "ToId: ", toId, "Travel Time : ",travelTime," Change Time : ",changeTime," Max Changes : ",maxChanges," Excluded Trains : ",excludedTrains );
 
     return (
-        <Router>
             <div className="app">
                 <nav className="navbar navbar-expand-lg bg-light">
                     <div className='container-fluid'>
@@ -374,7 +394,7 @@ const Test = () => {
                                                                             {
                                                                                 trainLegs.map((leg, legIndex) => (
                                                                                     <React.Fragment key={legIndex}>
-                                                                                        <li className={`detailed-item ${getClassForTrain(leg.line)}`}>
+                                                                                        <li className={`detailed-item cursor-pointer ${getClassForTrain(leg.line)}`} onClick={() => redirectToTripDetails(leg)}>
                                                                                             <div>
                                                                                                 <FontAwesomeIcon icon={faTrain}/> {
                                                                                                     leg.line
@@ -419,6 +439,7 @@ const Test = () => {
                                                                         <div className="issue-count">
                                                                             Issues: {countIssues(journey.legs)}
                                                                         </div>
+                                                                        
                                                                     </div>
                                                                 )
                                                             }
@@ -431,55 +452,10 @@ const Test = () => {
                                 )
                         }</div>
 }/>
-                    <Route path="/train-search" element={<TrainSearch />}/>
+                    <Route path="/train-details/:tripId" element={<TrainDetails />} key="tripId" />
                 </Routes>
             </div>
-        </Router>
     );
 };
 
 export default Test;
-
-// <option value="now">Select Travel Time</option>
-{/*  <option value="00:00">00:00</option>
-<option value="01:00">01:00</option>
-<o
- * ption value="02:00">02:00</option>
-<option value="03:00">03:00</option>
-<opti
- * on value="04:00">04:00</option>
-<option value="05:00">05:00</option>
-<option
- * value="06:00">06:00</option>
-<option value="07:00">07:00</option>
-<option val
- * ue="08:00">08:00</option>
-<option value="09:00">09:00</option>
-<option value=
- * "10:00">10:00</option>
-<option value="11:00">11:00</option>
-<option value="12
- * :00">12:00</option>
-<option value="13:00">13:00</option>
-<option value="14:00
- * ">14:00</option>
-<option value="15:00">15:00</option>
-<option value="16:00">1
- * 6:00</option>
-<option value="17:00">17:00</option>
-<option value="18:00">18:0
- * 0</option>
-<option value="19:00">19:00</option>
-<option value="20:00">20:00</
- * option>
-<option value="21:00">21:00</option>
-<option value="22:00">22:00</opt
- * ion>
-<option value="23:00">23:00</option>
- */
-}
-
-// const walkingLegs = journey.legs.filter(leg => leg.walking);  underneath
-// "const trainLegs = journey.legs.filter(leg => !leg.walking);"
-// {journeys.length === 0 ? ( <h1>No journeys were found</h1> ) : ( <ul
-// className="train-list">}
