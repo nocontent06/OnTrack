@@ -166,15 +166,42 @@ export const calculateChangeTimeInMinutes = (arrival, departure) => {
     return Math.floor(durationInMs / 1000 / 60); // Convert milliseconds to minutes
 };
 
+export const TravelTimeDropdown = ({ travelTime, handleTravelTimeChange }) => {
+    const timeOptions = ["now"]; // Add "now" as the first option
+
+    // Generate time options from "00:00" to "23:00"
+    for (let i = 0; i < 24; i++) {
+        const hour = i.toString().padStart(2, '0');
+        timeOptions.push(`${hour}:00`);
+    }
+
+    return (
+        <select
+            value={travelTime}
+            onChange={handleTravelTimeChange}
+            className="travel-time-dropdown"
+        >
+            {timeOptions.map((time, index) => (
+                <option key={index} value={time}>
+                    {time}
+                </option>
+            ))}
+        </select>
+    );
+};
+
 export const countIssues = (legs) => {
     if (!legs || legs.length === 0) 
         return 0;
+    
     let issueCount = 0;
 
     for (let i = 0; i < legs.length - 1; i++) {
         const currentLeg = legs[i];
         const nextLeg = legs[i + 1];
+
         if (currentLeg && nextLeg) {
+            // Check if change time is greater than 60 minutes
             const changeTimeInMinutes = calculateChangeTimeInMinutes(
                 currentLeg.arrival,
                 nextLeg.departure
@@ -182,7 +209,20 @@ export const countIssues = (legs) => {
             if (changeTimeInMinutes > 60) {
                 issueCount++;
             }
+
+            // Check if the arrival time is different from the planned arrival time
+            if (isDifferentArrival(currentLeg)) {
+                issueCount++;
+            }
         }
+    }
+
+    // Also check the last leg for arrival issues
+    const lastLeg = legs[legs.length - 1];
+    console.log("lastLeg", lastLeg.departure, lastLeg.plannedDeparture)
+    if (lastLeg && isDifferentArrival(lastLeg) || lastLeg && isDifferentDeparture(lastLeg)) {
+        issueCount++;
+        // hasDelays === true
     }
 
     return issueCount;
@@ -215,10 +255,11 @@ export const getClassForTrain = (line) => {
         'R',
         'RB',
         'BRB',
-        'S'
+        'S',
+        'CJX'
     ].includes(trainType)) {
         return 'blue-background';
-    } else if (['NJ', 'EN'].includes(trainType)) {
+    } else if (['NJ', 'EN', 'ICN'].includes(trainType)) {
         return 'dark-blue-background';
     } else if (['Bus'].includes(trainType)) {
         return 'gray-background';
@@ -258,4 +299,12 @@ export const formatChangeInfo = (prevLeg, nextLeg) => {
         </div>
     );
 };
+
+export const isDifferentArrival = (leg) => {
+    return leg.plannedArrival !== leg.arrival;
+}
+
+export const isDifferentDeparture = (leg) => {
+    return leg.plannedDeparture !== leg.departure;
+}
 
