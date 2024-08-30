@@ -22,7 +22,7 @@
     "react-autosuggest": "^10.1.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.25.1",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "stream": "^0.0.3",
     "stream-http": "^3.2.0",
     "url": "^0.11.3",
@@ -30,7 +30,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=80 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
