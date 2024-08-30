@@ -72,7 +72,7 @@ const fetchPlatformDetails = async (fromId, toId) => {
 };
 
 // Function to fetch journeys
-export const fetchJourneys = async (fromId, toId, travelTime, setJourneys, changeTime, maxChanges, excludedTrains) => {
+export const fetchJourneys = async (fromId, toId, travelTime, setJourneys, changeTime, maxChanges, maxResults, excludedTrains) => {
     try {
         // Construct the URL based on whether travelTime is provided
         let url = `https://v6.db.transport.rest/journeys?from=${fromId}&to=${toId}`;
@@ -86,6 +86,10 @@ export const fetchJourneys = async (fromId, toId, travelTime, setJourneys, chang
 
         if (maxChanges) {
             url += `&transfers=${maxChanges}`;
+        }
+
+        if (maxResults) {
+            url += `&results=${maxResults}`;
         }
 
         for (const train of excludedTrains) {
@@ -246,7 +250,8 @@ export const getClassForTrain = (line) => {
         'RJ',
         'RJX',
         'D',
-        'FR'
+        'FR',
+        'TGV'
     ].includes(trainType)) {
         return 'red-background';
     } else if ([

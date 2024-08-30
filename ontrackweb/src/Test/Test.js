@@ -51,6 +51,7 @@ const Test = () => {
     const [optionsExpanded, setOptionsExpanded] = useState(false);
     const [changeTime, setChangeTime] = useState(0);
     const [maxChanges, setMaxChanges] = useState(0);
+    const [maxResults, setMaxResults] = useState(0);
     const [excludedTrains, setExcludedTrains] = useState([]);
 
     useEffect(() => {
@@ -62,6 +63,7 @@ const Test = () => {
                 setJourneys,
                 changeTime,
                 maxChanges,
+                maxResults,
                 excludedTrains
             );
         }
@@ -232,6 +234,10 @@ const Test = () => {
                                             type="number"
                                             value={maxChanges}
                                             onChange={handleOptionChange(setMaxChanges)}/>
+                                    </div>
+                                    <div className='option-item'>
+                                        <label>Results: </label>
+                                        <input type="number" value={maxResults} onChange={handleOptionChange(setMaxResults)}/>
                                     </div>
                                     <div className="option-item">
                                         <label>Exclude Trains:</label>
