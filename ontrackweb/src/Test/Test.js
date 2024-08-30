@@ -37,6 +37,7 @@ import {
 import './Test.css';
 import TrainSearch from './TrainSearch'; // New component for train search
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.min.js';
 
 const Test = () => {
     const [fromQuery, setFromQuery] = useState('');
