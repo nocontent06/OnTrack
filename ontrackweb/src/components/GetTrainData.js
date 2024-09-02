@@ -1,9 +1,5 @@
-import {useState} from 'react';
-
-
-import Autosuggest from 'react-autosuggest';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrain, faClock, faSubway, faArrowRight, faHourglassHalf, faExchangeAlt, faSignOutAlt, faExclamationTriangle, faChevronDown, faChevronUp, faCheck } from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faExclamationTriangle} from '@fortawesome/free-solid-svg-icons';
 
 // Helper function to fetch suggestions
 
@@ -63,9 +59,7 @@ export const onSuggestionSelected = (setId) => (event, {suggestion}) => {
 // components/GetTrainData.js Helper function to fetch platform details
 const fetchPlatformDetails = async (fromId, toId) => {
     try {
-        const response = await fetch(
-            `https://v6.db.transport.rest/journeys?from=${fromId}&to=${toId}`
-        );
+        const response = await fetch(`/journeys?from=${fromId}&to=${toId}`);
         const result = await response.json();
         return result;
     } catch (error) {
@@ -75,8 +69,22 @@ const fetchPlatformDetails = async (fromId, toId) => {
 };
 
 // Function to fetch journeys
-export const fetchJourneys = async (fromId, toId, travelTime, setJourneys, changeTime, maxChanges, maxResults, excludedTrains) => {
+export const fetchJourneys = async (
+    fromId,
+    toId,
+    travelTime,
+    setJourneys,
+    changeTime,
+    maxChanges,
+    maxResults,
+    excludedTrains
+) => {
     try {
+
+        if (!excludedTrains) {
+            excludedTrains = [];
+        }
+
         // Construct the URL based on whether travelTime is provided
         let url = `https://v6.db.transport.rest/journeys?from=${fromId}&to=${toId}`;
         if (travelTime) {
@@ -95,19 +103,69 @@ export const fetchJourneys = async (fromId, toId, travelTime, setJourneys, chang
             url += `&results=${maxResults}`;
         }
 
+        let nationalExpressExcluded = false;
+        let nationalExcluded = false;
+        let regionalExpressExcluded = false;
+        let regionalExcluded = false;
+        let suburbanExcluded = false;
+        let busExcluded = false;
+
         for (const train of excludedTrains) {
-            if (train == "ICE") {
-                url += `&nationalExpress=false`;
-            }
-            if (train == "IC") {
-                url += `&national=false`;
+            switch (train) {
+                case "ICE":
+                case "ECE":
+                case "RJ":
+                case "RJX":
+                    if (!nationalExpressExcluded) {
+                        url += `&nationalExpress=false`;
+                        nationalExpressExcluded = true;
+                    }
+                    break;
+                case "IC":
+                case "EC":
+                    if (!nationalExcluded) {
+                        url += `&national=false`;
+                        nationalExcluded = true;
+                    }
+                    break;
+                case "RE":
+                case "IR":
+                case "RB":
+                case "D":
+                    if (!regionalExpressExcluded) {
+                        url += `&regionalExpress=false`;
+                        regionalExpressExcluded = true;
+                    }
+                    break;
+                case "BRB":
+                case "RS":
+                case "R":
+                    if (!regionalExcluded) {
+                        url += `&regional=false`;
+                        regionalExcluded = true;
+                    }
+                    break;
+                case "S-Bahn":
+                    if (!suburbanExcluded) {
+                        url += `&suburban=false`;
+                        suburbanExcluded = true;
+                    }
+                    break;
+                case "Bus":
+                    if (!busExcluded) {
+                        url += `&bus=false`;
+                        busExcluded = true;
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
         const response = await fetch(url);
         const result = await response.json();
 
-        if (result.journeys == undefined) {
+        if (result.journeys === undefined) {
             result.journeys = [];
         }
 
@@ -119,11 +177,11 @@ export const fetchJourneys = async (fromId, toId, travelTime, setJourneys, chang
         }
 
         setJourneys(result.journeys);
+        console.log('URL: ' + url);
     } catch (error) {
         console.error('Error fetching journeys:', error);
     }
 };
-
 
 // Optionally, you can integrate platform details into the journey legs
 const integratePlatformDetails = (journeys, platformDetails) => {
@@ -180,12 +238,14 @@ export const calculateChangeTimeInMinutes = (arrival, departure) => {
     return Math.floor(durationInMs / 1000 / 60); // Convert milliseconds to minutes
 };
 
-export const TravelTimeDropdown = ({ travelTime, handleTravelTimeChange }) => {
+export const TravelTimeDropdown = ({travelTime, handleTravelTimeChange}) => {
     const timeOptions = ["now"]; // Add "now" as the first option
 
     // Generate time options from "00:00" to "23:00"
     for (let i = 0; i < 24; i++) {
-        const hour = i.toString().padStart(2, '0');
+        const hour = i
+            .toString()
+            .padStart(2, '0');
         timeOptions.push(`${hour}:00`);
     }
 
@@ -193,13 +253,14 @@ export const TravelTimeDropdown = ({ travelTime, handleTravelTimeChange }) => {
         <select
             value={travelTime}
             onChange={handleTravelTimeChange}
-            className="travel-time-dropdown"
-        >
-            {timeOptions.map((time, index) => (
-                <option key={index} value={time}>
-                    {time}
-                </option>
-            ))}
+            className="travel-time-dropdown">
+            {
+                timeOptions.map((time, index) => (
+                    <option key={index} value={time}>
+                        {time}
+                    </option>
+                ))
+            }
         </select>
     );
 };
@@ -248,10 +309,9 @@ export const getClassForTrain = (line) => {
     const trainType = line.productName || '';
     const trainName = line.name || '';
 
-
     if (trainName.includes('BusSV')) {
         return 'yellow-background';
-    } 
+    }
 
     if ([
         'IC',
@@ -306,11 +366,14 @@ export const formatChangeInfo = (prevLeg, nextLeg) => {
         <div>
             <div>{`Change from ${arrivalPlatform} to ${departurePlatform} (${arrivalTime} - ${departureTime})`}</div>
             <div>{`Change Duration: ${formatChangeDuration(prevLeg.arrival, nextLeg.departure)}`}</div>
-            {calculateChangeTimeInMinutes(prevLeg.arrival, nextLeg.departure) > 60 && (
-                <div className="warning">
-                    <FontAwesomeIcon icon={faExclamationTriangle} /> Long Change Time
-                </div>
-            )}
+            {
+                calculateChangeTimeInMinutes(prevLeg.arrival, nextLeg.departure) > 60 && (
+                    <div className="warning">
+                        <FontAwesomeIcon icon={faExclamationTriangle}/>
+                        Long Change Time
+                    </div>
+                )
+            }
         </div>
     );
 };

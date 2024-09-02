@@ -13,7 +13,8 @@ import {
     faExclamationTriangle,
     faCog,
     faBars,
-    faLocationDot
+    faLocationDot,
+    faBus
 } from '@fortawesome/free-solid-svg-icons';
 import {BrowserRouter as Router, Route, Link, Routes, useNavigate} from 'react-router-dom';
 import {
@@ -142,16 +143,63 @@ const Test = () => {
         setter(event.target.value);
     };
 
-    const handleCheckboxChange = (train) => {
-        setExcludedTrains(
-            (prevExcludedTrains) => prevExcludedTrains.includes(train)
-                ? prevExcludedTrains.filter((item) => item !== train)
-                : [
-                    ...prevExcludedTrains,
-                    train
-                ]
-        );
+    const handleCheckboxChange = (trainGroup) => {
+        const newExcludedTrains = [...excludedTrains];
+
+        // Check if any train type in the group is already excluded
+        const isExcluded = trainGroup.some(train => excludedTrains.includes(train));
+
+        if (isExcluded) {
+            // Remove all train types in the group from excludedTrains
+            trainGroup.forEach(train => {
+                const index = newExcludedTrains.indexOf(train);
+                if (index > -1) {
+                    newExcludedTrains.splice(index, 1);
+                }
+            });
+        } else {
+            // Add all train types in the group to excludedTrains
+            newExcludedTrains.push(...trainGroup);
+        }
+
+        setExcludedTrains(newExcludedTrains);
     };
+
+    const trainGroups = [
+        {
+            types: [
+                "ICE", "ECE", "RJ", "RJX"
+            ],
+            icon: faTrain,
+            color: "red"
+        }, {
+            types: [
+                "IC", "EC"
+            ],
+            icon: faTrain,
+            color: "red"
+        }, {
+            types: [
+                "D", "RE", "IR", "RB"
+            ],
+            icon: faSubway,
+            color: "blue"
+        }, {
+            types: [
+                "BRB", "RS", "R"
+            ],
+            icon: faSubway,
+            color: "blue"
+        }, {
+            types: ["S-Bahn"],
+            icon: faSubway,
+            color: "blue"
+        }, {
+            types: ["Bus"],
+            icon: faBus,
+            color: "gray"
+        }
+    ];
 
     console.log(
         "FromId: ",
@@ -274,20 +322,61 @@ const Test = () => {
                                 </div>
                                 <div className="option-item">
                                     <label>Exclude Trains:</label>
-                                    <div className="checkbox-group">
+                                    <div
+                                        className="checkbox-group"
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            gap: '20px'
+                                        }}>
                                         {
-                                            ['ICE', 'IC', 'RE', 'RB', 'S-Bahn'].map((train) => (
-                                                <div key={train} className="checkbox-item">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={excludedTrains.includes(train)}
-                                                        onChange={() => handleCheckboxChange(train)}/>
-                                                    <label>{train}</label>
-                                                </div>
-                                            ))
+                                            trainGroups.map(({types, icon, color}) => {
+                                                const typesArray = types;
+                                                const isSelected = types.some(train => excludedTrains.includes(train));
+                                                return (
+                                                    <div
+                                                        key={types.join('-')}
+                                                        className="checkbox-item"
+                                                        style={{
+                                                            textAlign: 'center',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => handleCheckboxChange(types)}>
+                                                        <div
+                                                            style={{
+                                                                backgroundColor: isSelected
+                                                                    ? color
+                                                                    : 'transparent',
+                                                                color: isSelected
+                                                                    ? 'black'
+                                                                    : color,
+                                                                borderRadius: '50%',
+                                                                padding: '10px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                width: '50px',
+                                                                height: '50px',
+                                                                margin: '0 auto'
+                                                            }}>
+                                                            <FontAwesomeIcon icon={icon}/>
+                                                        </div>
+                                                        <div
+                                                            style={{
+                                                                marginTop: '5px',
+                                                                color: isSelected
+                                                                    ? color
+                                                                    : 'black'
+                                                            }}>
+                                                             {types.length > 1 ? types.join(' / ') : types[0]}
+                                                            </div>
+                                                    </div>
+                                                );
+                                            })
                                         }
                                     </div>
                                 </div>
+
                             </div>
                         )
                     } {
@@ -478,7 +567,11 @@ const Test = () => {
             </Routes>
             <div className='footer'>
                 <div>
-                    <FontAwesomeIcon icon={faClock}/>  {formatTime(new Date())} <br></br> Version: {version} <br></br> With &#9829; by Felix Alexander
+                    <FontAwesomeIcon icon={faClock}/> {formatTime(new Date())}
+                    <br></br>
+                    Version: {version}
+                    <br></br>
+                    With &#9829; by Felix Alexander
                 </div>
             </div>
         </div>
