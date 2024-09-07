@@ -42,7 +42,7 @@ import TrainSearch from './TrainSearch'; // New component for train search
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
 
-const version = '0.2.0 (2024-08-24)';
+const version = '0.2.1 (2024-09-07)';
 
 const Test = () => {
 
