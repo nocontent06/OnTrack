@@ -490,7 +490,7 @@ const Test = () => {
                                                                                 .origin
                                                                                 .name
                                                                         }
-                                                                        - {
+                                                                        &nbsp; - {
                                                                             journey
                                                                                 .legs[journey.legs.length - 1]
                                                                                 .destination
@@ -512,11 +512,11 @@ const Test = () => {
                                                                                                     : 'Unknown Train'
                                                                                             }
                                                                                             {"(" + leg.origin.name}
-                                                                                            - {leg.destination.name + ")"}
+                                                                                            &nbsp;- {leg.destination.name + ")"}
                                                                                         </div>
                                                                                         <div>
                                                                                             <FontAwesomeIcon icon={faClock}/> {formatTime(leg.departure)}
-                                                                                            - {formatTime(leg.arrival)}
+                                                                                            &nbsp;- {formatTime(leg.arrival)}
                                                                                         </div>
                                                                                         <div>
                                                                                             <FontAwesomeIcon icon={faSubway}/>&nbsp; Platform {leg.departurePlatform || '--'}
