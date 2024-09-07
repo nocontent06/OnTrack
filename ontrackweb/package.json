@@ -1,6 +1,7 @@
 {
   "name": "ontrackweb",
   "version": "0.1.0",
+  "homepage": "./",
   "private": true,
   "proxy": "https://v6.db.transport.rest/",
   "dependencies": {
