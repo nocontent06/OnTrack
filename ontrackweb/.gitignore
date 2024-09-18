@@ -25,5 +25,3 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Cuz the folder doesn't need a readme... it's just 4me
-README.md
