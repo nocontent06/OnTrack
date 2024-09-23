@@ -42,7 +42,7 @@ import TrainSearch from './TrainSearch'; // New component for train search
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
 
-const version = '0.2.1 (2024-09-07)';
+const version = '0.2.2 (2024-09-18)';
 
 const Test = () => {
 
@@ -299,22 +299,21 @@ const Test = () => {
                         optionsExpanded && (
                             <div className="options">
                                 <div className="option-item">
-                                    <label>Minimum Change Time (minutes):</label>
+                                    <label>Minimum Change Time (minutes): &nbsp;</label>
                                     <input
                                         type="number"
                                         value={changeTime}
                                         onChange={handleOptionChange(setChangeTime)}/>
                                 </div>
                                 <div className="option-item">
-                                    <label>Maximum Changes:</label>
+                                    <label>Maximum Changes: &nbsp;</label>
                                     <input
                                         type="number"
                                         value={maxChanges}
                                         onChange={handleOptionChange(setMaxChanges)}/>
                                 </div>
                                 <div className='option-item'>
-                                    <label>Results:
-                                    </label>
+                                    <label>Results: &nbsp;</label>
                                     <input
                                         type="number"
                                         value={maxResults}

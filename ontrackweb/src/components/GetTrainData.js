@@ -177,7 +177,7 @@ export const fetchJourneys = async (
         }
 
         setJourneys(result.journeys);
-        console.log('URL: ' + url);
+        console.log('Final URL: ' + url);
     } catch (error) {
         console.error('Error fetching journeys:', error);
     }
