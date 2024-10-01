@@ -41,6 +41,8 @@ import './Test.css';
 import TrainSearch from './TrainSearch'; // New component for train search
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const version = '0.2.2 (2024-09-18)';
 
@@ -72,6 +74,7 @@ const Test = () => {
     const [maxChanges, setMaxChanges] = useState(0);
     const [maxResults, setMaxResults] = useState(0);
     const [excludedTrains, setExcludedTrains] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (fromId && toId) {
@@ -125,6 +128,7 @@ const Test = () => {
                 excludedTrains,
             );
         }
+        setLoading(true);
     };
 
     const toggleDetails = (index) => {
@@ -218,31 +222,6 @@ const Test = () => {
 
     return (
         <div className="app">
-            <nav className="navbar navbar-expand-lg bg-light">
-                <div className='container-fluid'>
-                    <Link to="/" className="navbar-brand">OnTrack</Link>
-                </div>
-                <button
-                    className='navbar-toggler'
-                    type='button'
-                    data-bs-toggle='collapse'
-                    data-bs-target='#navbarSupportedContent'
-                    aria-controls='navbarSupportedContent'
-                    aria-expanded='false'
-                    aria-label='Toggle navigation'>
-                    <span className='navbar-toggler-icon'></span>
-                </button>
-                <div className='collapse navbar-collapse' id='navbarSupportedContent'>
-                    <ul className='navbar-nav me-auto mb-2 mb-lg-0'>
-                        <li className='nav-item'>
-                            <Link to="/" className="nav-link active">Rail Planner</Link>
-                        </li>
-                        <li className='nav-item'>
-                            <Link to="/train-search" className="nav-link">Search Trains</Link>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
             <Routes>
                 <Route
                     path="/"
@@ -367,8 +346,12 @@ const Test = () => {
                                                                     ? color
                                                                     : 'black'
                                                             }}>
-                                                             {types.length > 1 ? types.join(' / ') : types[0]}
-                                                            </div>
+                                                            {
+                                                                types.length > 1
+                                                                    ? types.join(' / ')
+                                                                    : types[0]
+                                                            }
+                                                        </div>
                                                     </div>
                                                 );
                                             })
@@ -379,186 +362,190 @@ const Test = () => {
                             </div>
                         )
                     } {
-                        journeys.length === 0 || journeys === null || journeys === undefined
-                            ? (<h1>No journeys were found</h1>)
-                            : (
-                                <ul className="train-list">
-                                    {
-                                        journeys.map((journey, index) => {
-                                            const trainLegs = journey
-                                                .legs
-                                                .filter(leg => !leg.walking);
+                        loading
+                            ? (
+                                <Skeleton count={5} height={100}/> // Adjust height to match your item height
+                            )
+                            : journeys.length === 0
+                                ? (<h1>No journeys were found</h1>)
+                                : (
+                                    <ul className="train-list">
+                                        {
+                                            journeys.map((journey, index) => {
+                                                const trainLegs = journey
+                                                    .legs
+                                                    .filter(leg => !leg.walking);
 
-                                            return (
-                                                <li key={index} className="train-item">
-                                                    <div className="train-summary">
-                                                        <div className="train-line-container">
-                                                            {
-                                                                trainLegs.map((leg, legIndex) => (
-                                                                    <div key={legIndex} className={`train-line ${getClassForTrain(leg.line)}`}>
-                                                                        <FontAwesomeIcon icon={faTrain}/> {
-                                                                            leg.line
-                                                                                ? leg.line.name
-                                                                                : 'Unknown Train'
-                                                                        }
-                                                                    </div>
-                                                                ))
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                    <div className="train-times">
-                                                        <div><FontAwesomeIcon icon={faClock}/>&nbsp; Departure: {
-                                                                isDifferentDeparture(journey.legs[0])
-                                                                    ? (
-                                                                        <div>
-                                                                            <div
-                                                                                style={{
-                                                                                    textDecoration: 'line-through'
-                                                                                }}>
-                                                                                {formatTime(journey.legs[0].plannedDeparture)}
-                                                                            </div>
-                                                                            <div
-                                                                                style={{
-                                                                                    color: 'red'
-                                                                                }}>
-                                                                                {formatTime(journey.legs[0].departure)}
-                                                                            </div>
+                                                return (
+                                                    <li key={index} className="train-item">
+                                                        <div className="train-summary">
+                                                            <div className="train-line-container">
+                                                                {
+                                                                    trainLegs.map((leg, legIndex) => (
+                                                                        <div key={legIndex} className={`train-line ${getClassForTrain(leg.line)}`}>
+                                                                            <FontAwesomeIcon icon={faTrain}/> {
+                                                                                leg.line
+                                                                                    ? leg.line.name
+                                                                                    : 'Unknown Train'
+                                                                            }
                                                                         </div>
-                                                                    )
-                                                                    : (
-                                                                        <div
-                                                                            style={{
-                                                                                color: 'green'
-                                                                            }}>{formatTime(journey.legs[0].departure)}</div>
-                                                                    )
-                                                            }
-                                                        </div>
-                                                        <div><FontAwesomeIcon icon={faClock}/>&nbsp; Arrival: {
-                                                                isDifferentArrival(journey.legs[journey.legs.length - 1])
-                                                                    ? (
-                                                                        <div>
-                                                                            <div
-                                                                                style={{
-                                                                                    textDecoration: 'line-through'
-                                                                                }}>
-                                                                                {formatTime(journey.legs[journey.legs.length - 1].plannedArrival)}
-                                                                            </div>
-                                                                            <div
-                                                                                style={{
-                                                                                    color: 'red'
-                                                                                }}>
-                                                                                {formatTime(journey.legs[journey.legs.length - 1].arrival)}
-                                                                            </div>
-                                                                        </div>
-                                                                    )
-                                                                    : (
-                                                                        <div
-                                                                            style={{
-                                                                                color: 'green'
-                                                                            }}>{formatTime(journey.legs[journey.legs.length - 1].arrival)}</div>
-                                                                    )
-                                                            }
-                                                            <div className="issue-count">
-                                                                Issues: {countIssues(journey.legs)}
-                                                            </div>
-                                                            <div className="train-delay-notification">
-                                                                {/* {hasDelays && (
-                                                                        <div className="warning">
-                                                                            <FontAwesomeIcon icon={faExclamationTriangle} /> Some Trains are delayed
-                                                                        </div>
-                                                                    )} */
+                                                                    ))
                                                                 }
                                                             </div>
                                                         </div>
-                                                        <div className="toggle-details" onClick={() => toggleDetails(index)}>
-                                                            <span>Details</span>
-                                                            <FontAwesomeIcon
-                                                                icon={expandedTrain === index
-                                                                    ? faChevronUp
-                                                                    : faChevronDown}
-                                                                className="toggle-icon"/>
-                                                        </div>
-                                                        {
-                                                            expandedTrain === index && (
-                                                                <div className="train-details">
-                                                                    <div className="train-details-header">
-                                                                        <FontAwesomeIcon icon={faLocationDot}/>&nbsp; {/* From and to */}
-                                                                        {
-                                                                            journey
-                                                                                .legs[0]
-                                                                                .origin
-                                                                                .name
-                                                                        }
-                                                                        &nbsp; - {
-                                                                            journey
-                                                                                .legs[journey.legs.length - 1]
-                                                                                .destination
-                                                                                .name
-                                                                        }
-
-                                                                    </div>
-                                                                    <ul>
-                                                                        {
-                                                                            trainLegs.map((leg, legIndex) => (
-                                                                                <React.Fragment key={legIndex}>
-                                                                                    <li
-                                                                                        className={`detailed-item cursor-pointer ${getClassForTrain(leg.line)}`}
-                                                                                        onClick={() => redirectToTripDetails(leg)}>
-                                                                                        <div>
-                                                                                            <FontAwesomeIcon icon={faTrain}/> {
-                                                                                                leg.line
-                                                                                                    ? leg.line.name
-                                                                                                    : 'Unknown Train'
-                                                                                            }
-                                                                                            {"(" + leg.origin.name}
-                                                                                            &nbsp;- {leg.destination.name + ")"}
-                                                                                        </div>
-                                                                                        <div>
-                                                                                            <FontAwesomeIcon icon={faClock}/> {formatTime(leg.departure)}
-                                                                                            &nbsp;- {formatTime(leg.arrival)}
-                                                                                        </div>
-                                                                                        <div>
-                                                                                            <FontAwesomeIcon icon={faSubway}/>&nbsp; Platform {leg.departurePlatform || '--'}
-                                                                                        </div>
-                                                                                        <div>
-                                                                                            <FontAwesomeIcon icon={faArrowRight}/>&nbsp; Dir.: {leg.direction}
-                                                                                        </div>
-                                                                                        <div>
-                                                                                            <FontAwesomeIcon icon={faSignOutAlt}/>&nbsp; Exit: {
-                                                                                                leg.destination
-                                                                                                    ? leg.destination.name
-                                                                                                    : '--'
-                                                                                            }
-                                                                                        </div>
-                                                                                    </li>
-                                                                                    {
-                                                                                        legIndex < trainLegs.length - 1 && (
-                                                                                            <li className="detailed-item change-info">
-                                                                                                <FontAwesomeIcon icon={faExchangeAlt}/> {formatChangeInfo(leg, trainLegs[legIndex + 1])}
-                                                                                            </li>
-                                                                                        )
-                                                                                    }
-                                                                                </React.Fragment>
-                                                                            ))
-                                                                        }
-                                                                    </ul>
-                                                                    <div className="total-travel-time">
-                                                                        Total Travel Time: {calculateTotalTravelTime(journey.legs)}
-                                                                    </div>
-                                                                    <div className="issue-count">
-                                                                        Issues: {countIssues(journey.legs)}
-                                                                    </div>
-
+                                                        <div className="train-times">
+                                                            <div><FontAwesomeIcon icon={faClock}/>&nbsp; Departure: {
+                                                                    isDifferentDeparture(journey.legs[0])
+                                                                        ? (
+                                                                            <div>
+                                                                                <div
+                                                                                    style={{
+                                                                                        textDecoration: 'line-through'
+                                                                                    }}>
+                                                                                    {formatTime(journey.legs[0].plannedDeparture)}
+                                                                                </div>
+                                                                                <div
+                                                                                    style={{
+                                                                                        color: 'red'
+                                                                                    }}>
+                                                                                    {formatTime(journey.legs[0].departure)}
+                                                                                </div>
+                                                                            </div>
+                                                                        )
+                                                                        : (
+                                                                            <div
+                                                                                style={{
+                                                                                    color: 'green'
+                                                                                }}>{formatTime(journey.legs[0].departure)}</div>
+                                                                        )
+                                                                }
+                                                            </div>
+                                                            <div><FontAwesomeIcon icon={faClock}/>&nbsp; Arrival: {
+                                                                    isDifferentArrival(journey.legs[journey.legs.length - 1])
+                                                                        ? (
+                                                                            <div>
+                                                                                <div
+                                                                                    style={{
+                                                                                        textDecoration: 'line-through'
+                                                                                    }}>
+                                                                                    {formatTime(journey.legs[journey.legs.length - 1].plannedArrival)}
+                                                                                </div>
+                                                                                <div
+                                                                                    style={{
+                                                                                        color: 'red'
+                                                                                    }}>
+                                                                                    {formatTime(journey.legs[journey.legs.length - 1].arrival)}
+                                                                                </div>
+                                                                            </div>
+                                                                        )
+                                                                        : (
+                                                                            <div
+                                                                                style={{
+                                                                                    color: 'green'
+                                                                                }}>{formatTime(journey.legs[journey.legs.length - 1].arrival)}</div>
+                                                                        )
+                                                                }
+                                                                <div className="issue-count">
+                                                                    Issues: {countIssues(journey.legs)}
                                                                 </div>
-                                                            )
-                                                        }
-                                                    </div>
-                                                </li>
-                                            );
-                                        })
-                                    }
-                                </ul>
-                            )
+                                                                <div className="train-delay-notification">
+                                                                    {/* {hasDelays && (
+                                                                            <div className="warning">
+                                                                                <FontAwesomeIcon icon={faExclamationTriangle} /> Some Trains are delayed
+                                                                            </div>
+                                                                        )} */
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                            <div className="toggle-details" onClick={() => toggleDetails(index)}>
+                                                                <span>Details</span>
+                                                                <FontAwesomeIcon
+                                                                    icon={expandedTrain === index
+                                                                        ? faChevronUp
+                                                                        : faChevronDown}
+                                                                    className="toggle-icon"/>
+                                                            </div>
+                                                            {
+                                                                expandedTrain === index && (
+                                                                    <div className="train-details">
+                                                                        <div className="train-details-header">
+                                                                            <FontAwesomeIcon icon={faLocationDot}/>&nbsp; {/* From and to */}
+                                                                            {
+                                                                                journey
+                                                                                    .legs[0]
+                                                                                    .origin
+                                                                                    .name
+                                                                            }
+                                                                            &nbsp; - {
+                                                                                journey
+                                                                                    .legs[journey.legs.length - 1]
+                                                                                    .destination
+                                                                                    .name
+                                                                            }
+
+                                                                        </div>
+                                                                        <ul>
+                                                                            {
+                                                                                trainLegs.map((leg, legIndex) => (
+                                                                                    <React.Fragment key={legIndex}>
+                                                                                        <li
+                                                                                            className={`detailed-item cursor-pointer ${getClassForTrain(leg.line)}`}
+                                                                                            onClick={() => redirectToTripDetails(leg)}>
+                                                                                            <div>
+                                                                                                <FontAwesomeIcon icon={faTrain}/> {
+                                                                                                    leg.line
+                                                                                                        ? leg.line.name
+                                                                                                        : 'Unknown Train'
+                                                                                                }
+                                                                                                {"(" + leg.origin.name}
+                                                                                                &nbsp;- {leg.destination.name + ")"}
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <FontAwesomeIcon icon={faClock}/> {formatTime(leg.departure)}
+                                                                                                &nbsp;- {formatTime(leg.arrival)}
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <FontAwesomeIcon icon={faSubway}/>&nbsp; Platform {leg.departurePlatform || '--'}
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <FontAwesomeIcon icon={faArrowRight}/>&nbsp; Dir.: {leg.direction}
+                                                                                            </div>
+                                                                                            <div>
+                                                                                                <FontAwesomeIcon icon={faSignOutAlt}/>&nbsp; Exit: {
+                                                                                                    leg.destination
+                                                                                                        ? leg.destination.name
+                                                                                                        : '--'
+                                                                                                }
+                                                                                            </div>
+                                                                                        </li>
+                                                                                        {
+                                                                                            legIndex < trainLegs.length - 1 && (
+                                                                                                <li className="detailed-item change-info">
+                                                                                                    <FontAwesomeIcon icon={faExchangeAlt}/> {formatChangeInfo(leg, trainLegs[legIndex + 1])}
+                                                                                                </li>
+                                                                                            )
+                                                                                        }
+                                                                                    </React.Fragment>
+                                                                                ))
+                                                                            }
+                                                                        </ul>
+                                                                        <div className="total-travel-time">
+                                                                            Total Travel Time: {calculateTotalTravelTime(journey.legs)}
+                                                                        </div>
+                                                                        <div className="issue-count">
+                                                                            Issues: {countIssues(journey.legs)}
+                                                                        </div>
+
+                                                                    </div>
+                                                                )
+                                                            }
+                                                        </div>
+                                                    </li>
+                                                );
+                                            })
+                                        }
+                                    </ul>
+                                )
 
                     }</div>
 }/>
