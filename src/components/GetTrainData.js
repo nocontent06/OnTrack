@@ -69,7 +69,7 @@ const fetchPlatformDetails = async (fromId, toId) => {
 };
 
 // Function to fetch journeys
-export const fetchJourneys = async (
+export let fetchJourneys = async (
     fromId,
     toId,
     travelTime,
@@ -79,11 +79,19 @@ export const fetchJourneys = async (
     maxResults,
     excludedTrains
 ) => {
+
+
     try {
 
         if (!excludedTrains) {
             excludedTrains = [];
         }
+
+        if (maxResults == 0 || maxResults < 0 || maxResults === undefined || maxResults === null || maxResults === '' || maxResults.length == 0) {
+            maxResults = false;
+            console.log("Max Results: ", maxResults);
+        }
+    
 
         // Construct the URL based on whether travelTime is provided
         let url = `https://v6.db.transport.rest/journeys?from=${fromId}&to=${toId}`;

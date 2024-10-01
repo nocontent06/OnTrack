@@ -44,7 +44,7 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const version = '0.2.2 (2024-09-18)';
+const version = '0.2.2.1 (2024-10-01)';
 
 const Test = () => {
 
@@ -118,6 +118,7 @@ const Test = () => {
 
     const handleSearch = () => {
         if (fromId && toId) {
+            console.log("TRUE")
             fetchJourneys(
                 fromId,
                 toId,
@@ -125,10 +126,18 @@ const Test = () => {
                 setJourneys,
                 changeTime,
                 maxChanges,
+                maxResults,
                 excludedTrains,
             );
+        } else {
+            console.log("FALSE")
+            fetchJourneys(
+                fromId,
+                toId,
+                setJourneys
+            )
         }
-        setLoading(true);
+        
     };
 
     const toggleDetails = (index) => {
