@@ -1,13 +1,15 @@
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faExclamationTriangle} from '@fortawesome/free-solid-svg-icons';
+import API_BASE_URL from './API_BASE_URL';
 
 // Helper function to fetch suggestions
 
 export const fetchSuggestions = async (query, setSuggestions) => {
     try {
         const response = await fetch(
-            `https://v6.db.transport.rest/locations?poi=false&addresses=false&query=${query}`
+            `${API_BASE_URL}/locations?poi=false&addresses=false&query=${query}`
         );
+        console.log('Fetched suggestions:', response);
         const result = await response.json();
         setSuggestions(result);
     } catch (error) {
@@ -94,7 +96,7 @@ export let fetchJourneys = async (
     
 
         // Construct the URL based on whether travelTime is provided
-        let url = `https://v6.db.transport.rest/journeys?from=${fromId}&to=${toId}`;
+        let url = `${API_BASE_URL}/journeys?from=${fromId}&to=${toId}`;
         if (travelTime) {
             url += `&departure=${travelTime}`;
         }
@@ -111,6 +113,7 @@ export let fetchJourneys = async (
             url += `&results=${maxResults}`;
         }
 
+        let interregionalExcluded = false
         let nationalExpressExcluded = false;
         let nationalExcluded = false;
         let regionalExpressExcluded = false;
@@ -120,6 +123,14 @@ export let fetchJourneys = async (
 
         for (const train of excludedTrains) {
             switch (train) {
+                case "NJ":
+                case "EN":
+                case "D": 
+                    if (!interregionalExcluded) {
+                        url += `&international=false`;
+                        interregionalExcluded = true;
+                    }
+                    break;
                 case "ICE":
                 case "ECE":
                 case "RJ":
@@ -200,7 +211,7 @@ const integratePlatformDetails = (journeys, platformDetails) => {
 const fetchArrivalPlatform = async (fromId, toId) => {
     try {
         const response = await fetch(
-            `https://v6.db.transport.rest/journeys?from=${fromId}&to=${toId}`
+            `${API_BASE_URL}/journeys?from=${fromId}&to=${toId}`
         );
         const result = await response.json();
         return result;
@@ -320,8 +331,7 @@ export const getClassForTrain = (line) => {
     if (trainName.includes('BusSV')) {
         return 'yellow-background';
     }
-
-    if ([
+    else if ([
         'IC',
         'EC',
         'ICE',

@@ -5,8 +5,9 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import './Test.css'; // Updated CSS file
 import { Route, Routes } from 'react-router-dom';
+import API_BASE_URL from '../components/API_BASE_URL.js';
 
-const API_BASE_URL = 'https://v6.db.transport.rest';
+console.log("HELLO")
 
 let responseStatus = "" 
 

@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useLocation} from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import '../Test/Test.css'; // Assuming you have a CSS file for styling
+import API_BASE_URL from './API_BASE_URL.js';
 
 export const TrainDetails = () => {
     const [tripDetails, setTripDetails] = useState(null);
@@ -20,7 +21,7 @@ export const TrainDetails = () => {
 
     const fetchTripDetails = async (id) => {
         try {
-            const response = await fetch(`https://v6.db.transport.rest/trips/${id}?stopovers=true`);
+            const response = await fetch(`${API_BASE_URL}/trips/${id}&stopovers=true`);
             const data = await response.json();
             console.log('Fetched trip details:', data); // Log the structure
             setTripDetails(data);
@@ -78,31 +79,6 @@ export const TrainDetails = () => {
 
     return (
         <div className="app">
-            <nav className="navbar navbar-expand-lg bg-light">
-                <div className='container-fluid'>
-                    <Link to="/" className="navbar-brand">OnTrack</Link>
-                </div>
-                <button
-                    className='navbar-toggler'
-                    type='button'
-                    data-bs-toggle='collapse'
-                    data-bs-target='#navbarSupportedContent'
-                    aria-controls='navbarSupportedContent'
-                    aria-expanded='false'
-                    aria-label='Toggle navigation'>
-                    <span className='navbar-toggler-icon'></span>
-                </button>
-                <div className='collapse navbar-collapse' id='navbarSupportedContent'>
-                    <ul className='navbar-nav me-auto mb-2 mb-lg-0'>
-                        <li className='nav-item'>
-                            <Link to="/" className="nav-link active">Rail Planner</Link>
-                        </li>
-                        <li className='nav-item'>
-                            <Link to="/train-search" className="nav-link">Search Trains</Link>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
             <div className="train-details-container">
             <h1>Train Details</h1>
             <section className="train-info">

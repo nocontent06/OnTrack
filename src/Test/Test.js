@@ -44,7 +44,7 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const version = '0.2.2.1 (2024-10-01)';
+const version = '0.3.0 (2024-10-01)';
 
 const Test = () => {
 
@@ -181,33 +181,45 @@ const Test = () => {
     const trainGroups = [
         {
             types: [
+                "NJ", "EN", "ICN", "D"
+            ],
+            icon: faTrain,
+            color: "darkblue",
+        }, 
+        {
+            types: [
                 "ICE", "ECE", "RJ", "RJX"
             ],
             icon: faTrain,
             color: "red"
-        }, {
+        }, 
+        {
             types: [
                 "IC", "EC"
             ],
             icon: faTrain,
             color: "red"
-        }, {
+        }, 
+        {
             types: [
-                "D", "RE", "IR", "RB"
+                "REX", "RE", "IR", "RB"
             ],
             icon: faSubway,
             color: "blue"
-        }, {
+        }, 
+        {
             types: [
                 "BRB", "RS", "R"
             ],
             icon: faSubway,
             color: "blue"
-        }, {
+        }, 
+        {
             types: ["S-Bahn"],
             icon: faSubway,
             color: "blue"
-        }, {
+        }, 
+        {
             types: ["Bus"],
             icon: faBus,
             color: "gray"
