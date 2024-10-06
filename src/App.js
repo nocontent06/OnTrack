@@ -12,7 +12,7 @@ const App = () => {
             <div>
                 <nav className="navbar navbar-expand-lg bg-light">
                     <div className='container-fluid'>
-                        <Link to="/" className="navbar-brand"><img src='logo512.png' alt="logo" width="30"/></Link>
+                        <Link to="/" className="navbar-brand"><img src='/logo512.png' alt="logo" width="30"/></Link>
                     </div>
                     <button
                         className='navbar-toggler'
