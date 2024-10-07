@@ -1,6 +1,6 @@
 {
   "name": "ontrackweb",
-  "version": "0.3.0",
+  "version": "0.3.0.1",
   "homepage": "./",
   "private": true,
   "proxy": "https://oebb.macistry.com/api",
