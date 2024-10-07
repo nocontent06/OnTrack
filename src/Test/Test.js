@@ -44,7 +44,7 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const version = '0.3.0 (2024-10-01)';
+const version = '0.3.0 (2024-10-06)';
 
 const Test = () => {
 
