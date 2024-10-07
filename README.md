@@ -1,9 +1,9 @@
 # Welcome to OnTrack - A rail planner Website/App 
 
 OnTrack is build with ReactJS using the HAFAS (HaCon Fahrplan Auskunftssystem) REST API 
-Sources are: [v6.db.transport.rest](https://v6.db.transport.rest)
+Sources are: ~~[v6.db.transport.rest](https://v6.db.transport.rest)~~ [oebb.macistry.com/api](https://oebb.macistry.com)
 
-The Website on witch it runs... or should run... is [ontrack.macistry.com](http://ontrack.macistry.com)
+The Website on witch it runs... or should run... is [ontrack.macistry.com](https://ontrack.macistry.com)
 
 ## What makes OnTrack special in comparison to other Rail Planners?
 
