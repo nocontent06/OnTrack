@@ -1,11 +1,10 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useLocation} from 'react-router-dom';
 import {MapContainer, TileLayer, Marker, Popup, useMap} from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'; // Import Leaflet styles
 import L from 'leaflet';
 import '../Test/Test.css'; // Assuming you have a CSS file for styling
 import API_BASE_URL from './API_BASE_URL.js';
-import { Button } from 'bootstrap';
 
 const trainIcon = new L.Icon({
     iconUrl: require('../img/train_flat.png'), // Add the path to your train icon image here
@@ -38,21 +37,25 @@ export const TrainDetails = () => {
     const tripId = queryParams.get('tripId');
 
     const encodedTripId = tripId
-        .replace(/#/g, '%23')
-        .replace(/ /g, '%20');
+        ? tripId
+            .replace(/#/g, '%23')
+            .replace(/ /g, '%20')
+        : '';
 
     useEffect(() => {
-        if (tripId) {
+        if (encodedTripId) {
             // Encode the tripId for safe usage in URLs
             console.log('Encoded trip ID:', encodedTripId);
 
             // Fetch trip details using the encoded trip ID
             fetchTripDetails(encodedTripId);
         }
-    }, [tripId]);
+    }, [encodedTripId]);
 
     const refreshButton = () => {
-        fetchTripDetails(encodedTripId);
+        if (encodedTripId) {
+            fetchTripDetails(encodedTripId);
+        }
     }
 
     const fetchTripDetails = async (id) => {
@@ -116,20 +119,11 @@ export const TrainDetails = () => {
         }
     };
 
-    const formatDelayedDate = (dateString) => {
-        const date = new Date(dateString);
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
-    };
-
-
     const {
         trip: {
             plannedDeparture = 'Not available',
             departureDelay = 'Not available',
             arrival = 'Not available',
-            plannedArrival = 'Not available',
             arrivalDelay = 'Not available',
             line: {
                 name = 'Not available',

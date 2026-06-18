@@ -10,41 +10,35 @@ import {
     faSignOutAlt,
     faChevronDown,
     faChevronUp,
-    faExclamationTriangle,
     faCog,
-    faBars,
     faLocationDot,
-    faBus
+    faBus,
+    faHourglassHalf
 } from '@fortawesome/free-solid-svg-icons';
-import {BrowserRouter as Router, Route, Link, Routes, useNavigate} from 'react-router-dom';
+import {Route, Routes, useNavigate} from 'react-router-dom';
 import {
     fetchJourneys,
-    calculateChangeTime,
     calculateTotalTravelTime,
-    calculateChangeTimeInMinutes,
     countIssues,
     formatTime,
     fetchSuggestions,
     getSuggestionValue,
     renderSuggestion,
     getClassForTrain,
-    formatChangeDuration,
     formatChangeInfo,
     TravelTimeDropdown,
     isDifferentArrival,
     isDifferentDeparture,
-    hasDelays,
     getTripDetails
 } from '../components/GetTrainData';
 import {TrainDetails} from '../components/TrainDetails';
 import './Test.css';
-import TrainSearch from './TrainSearch'; // New component for train search
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const version = '0.3.0.1 (2024-10-07)';
+const version = '1.0.0 (2026-06-18)';
 
 const Test = () => {
 
@@ -75,6 +69,7 @@ const Test = () => {
     const [maxResults, setMaxResults] = useState(0);
     const [excludedTrains, setExcludedTrains] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
 
     useEffect(() => {
         if (fromId && toId) {
@@ -95,6 +90,7 @@ const Test = () => {
         travelTime,
         changeTime,
         maxChanges,
+        maxResults,
         excludedTrains
     ]);
 
@@ -116,28 +112,33 @@ const Test = () => {
         setter(suggestion.id);
     };
 
-    const handleSearch = () => {
-        if (fromId && toId) {
-            console.log("TRUE")
-            fetchJourneys(
-                fromId,
-                toId,
-                travelTime,
-                setJourneys,
-                changeTime,
-                maxChanges,
-                maxResults,
-                excludedTrains,
-            );
-        } else {
-            console.log("FALSE")
-            fetchJourneys(
-                fromId,
-                toId,
-                setJourneys
-            )
+    const handleSearch = async () => {
+        setHasSearched(true);
+        setLoading(true);
+        try {
+            if (fromId && toId) {
+                console.log("TRUE")
+                await fetchJourneys(
+                    fromId,
+                    toId,
+                    travelTime,
+                    setJourneys,
+                    changeTime,
+                    maxChanges,
+                    maxResults,
+                    excludedTrains,
+                );
+            } else {
+                console.log("FALSE")
+                await fetchJourneys(
+                    fromId,
+                    toId,
+                    setJourneys
+                )
+            }
+        } finally {
+            setLoading(false);
         }
-        
     };
 
     const toggleDetails = (index) => {
@@ -330,7 +331,6 @@ const Test = () => {
                                         }}>
                                         {
                                             trainGroups.map(({types, icon, color}) => {
-                                                const typesArray = types;
                                                 const isSelected = types.some(train => excludedTrains.includes(train));
                                                 return (
                                                     <div
@@ -387,7 +387,7 @@ const Test = () => {
                             ? (
                                 <Skeleton count={5} height={100}/> // Adjust height to match your item height
                             )
-                            : journeys.length === 0
+                            : hasSearched && journeys.length === 0
                                 ? (<h1>No journeys were found</h1>)
                                 : (
                                     <ul className="train-list">
@@ -396,10 +396,92 @@ const Test = () => {
                                                 const trainLegs = journey
                                                     .legs
                                                     .filter(leg => !leg.walking);
+                                                const firstLeg = journey.legs[0];
+                                                const lastLeg = journey.legs[journey.legs.length - 1];
+                                                const issueCount = countIssues(journey.legs);
+                                                const nodeCount = Math.max(trainLegs.length + 1, 2);
+                                                const nodePositions = Array.from({length: nodeCount}, (_, nodeIndex) => 30 + (740 / (nodeCount - 1)) * nodeIndex);
 
                                                 return (
-                                                    <li key={index} className="train-item">
+                                                    <li key={index} className={`train-item ${expandedTrain === index ? 'is-expanded' : ''}`}>
                                                         <div className="train-summary">
+                                                            <div className="journey-hero">
+                                                                <div className="journey-stations">
+                                                                    <span>{firstLeg.origin?.name || '--'}</span>
+                                                                    <span className="journey-divider" aria-hidden="true">→</span>
+                                                                    <span>{lastLeg.destination?.name || '--'}</span>
+                                                                </div>
+                                                                <div className="journey-meta">
+                                                                    <span className="journey-duration">
+                                                                        <FontAwesomeIcon icon={faHourglassHalf}/> {calculateTotalTravelTime(journey.legs)}
+                                                                    </span>
+                                                                    <span className="journey-issues">
+                                                                        Issues: {issueCount}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div className="route-graphic" aria-hidden="true">
+                                                                <svg viewBox="0 0 800 80" xmlns="http://www.w3.org/2000/svg">
+                                                                    <defs>
+                                                                        <linearGradient id={`routeLine-${index}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                                                                            <stop offset="0%" stopColor="#0f8db8"/>
+                                                                            <stop offset="100%" stopColor="#f28749"/>
+                                                                        </linearGradient>
+                                                                    </defs>
+                                                                    <path
+                                                                        id={`routeCurve-${index}`}
+                                                                        d="M30 42 C160 12, 280 66, 400 42 C520 18, 640 70, 770 42"
+                                                                        fill="none"
+                                                                        stroke={`url(#routeLine-${index})`}
+                                                                        strokeWidth="8"
+                                                                        strokeLinecap="round"
+                                                                    />
+                                                                    {
+                                                                        nodePositions.map((xPos, nodeIndex) => (
+                                                                            <g key={nodeIndex}>
+                                                                                <circle
+                                                                                    cx={xPos}
+                                                                                    cy="42"
+                                                                                    r={nodeIndex === 0 || nodeIndex === nodePositions.length - 1 ? 6.5 : 4.5}
+                                                                                    className={`route-station ${nodeIndex === 0 || nodeIndex === nodePositions.length - 1 ? 'is-terminal' : ''}`}
+                                                                                />
+                                                                                <circle
+                                                                                    cx={xPos}
+                                                                                    cy="42"
+                                                                                    r={nodeIndex === 0 || nodeIndex === nodePositions.length - 1 ? 8.5 : 6.5}
+                                                                                    className="route-station-pulse"
+                                                                                    style={{animationDelay: `${nodeIndex * 0.25}s`}}
+                                                                                />
+                                                                            </g>
+                                                                        ))
+                                                                    }
+                                                                    <circle cx="30" cy="42" r="8" fill="#0f8db8"/>
+                                                                    <circle cx="770" cy="42" r="8" fill="#f28749"/>
+                                                                    <circle r="5" className="route-runner">
+                                                                        <animateMotion dur="7s" repeatCount="indefinite" rotate="auto">
+                                                                            <mpath href={`#routeCurve-${index}`}/>
+                                                                        </animateMotion>
+                                                                    </circle>
+                                                                </svg>
+                                                            </div>
+                                                            <div className="mobile-timeline" aria-label="Compact route timeline">
+                                                                {
+                                                                    trainLegs.map((leg, legIndex) => (
+                                                                        <div key={`mobile-${legIndex}`} className="mobile-timeline-item">
+                                                                            <span className={`mobile-line-pill ${getClassForTrain(leg.line)}`}>
+                                                                                {leg.line ? leg.line.name : 'Train'}
+                                                                            </span>
+                                                                            <span className="mobile-station-name">{leg.origin?.name || '--'}</span>
+                                                                            <span className="mobile-time">{formatTime(leg.departure)}</span>
+                                                                        </div>
+                                                                    ))
+                                                                }
+                                                                <div className="mobile-timeline-item mobile-arrival">
+                                                                    <span className="mobile-arrival-label">Arrival</span>
+                                                                    <span className="mobile-station-name">{lastLeg.destination?.name || '--'}</span>
+                                                                    <span className="mobile-time">{formatTime(lastLeg.arrival)}</span>
+                                                                </div>
+                                                            </div>
                                                             <div className="train-line-container">
                                                                 {
                                                                     trainLegs.map((leg, legIndex) => (
@@ -415,80 +497,60 @@ const Test = () => {
                                                             </div>
                                                         </div>
                                                         <div className="train-times">
-                                                            <div><FontAwesomeIcon icon={faClock}/>&nbsp; Departure: {
-                                                                    isDifferentDeparture(journey.legs[0])
-                                                                        ? (
-                                                                            <div>
-                                                                                <div
-                                                                                    style={{
-                                                                                        textDecoration: 'line-through'
-                                                                                    }}>
-                                                                                    {formatTime(journey.legs[0].plannedDeparture)}
-                                                                                </div>
-                                                                                <div
-                                                                                    style={{
-                                                                                        color: 'red'
-                                                                                    }}>
-                                                                                    {formatTime(journey.legs[0].departure)}
-                                                                                </div>
-                                                                            </div>
-                                                                        )
-                                                                        : (
-                                                                            <div
-                                                                                style={{
-                                                                                    color: 'green'
-                                                                                }}>{formatTime(journey.legs[0].departure)}</div>
-                                                                        )
-                                                                }
+                                                            <div className="train-time-grid">
+                                                                <div className="train-time-row">
+                                                                    <span className="train-time-label">
+                                                                        <FontAwesomeIcon icon={faClock}/>&nbsp;Departure
+                                                                    </span>
+                                                                    <span className="train-time-value">
+                                                                        {
+                                                                            isDifferentDeparture(firstLeg)
+                                                                                ? (
+                                                                                    <>
+                                                                                        <span className="train-time-planned">{formatTime(firstLeg.plannedDeparture)}</span>
+                                                                                        <span className="train-time-live is-delayed">{formatTime(firstLeg.departure)}</span>
+                                                                                    </>
+                                                                                )
+                                                                                : (
+                                                                                    <span className="train-time-live is-on-time">{formatTime(firstLeg.departure)}</span>
+                                                                                )
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                                <div className="train-time-row">
+                                                                    <span className="train-time-label">
+                                                                        <FontAwesomeIcon icon={faClock}/>&nbsp;Arrival
+                                                                    </span>
+                                                                    <span className="train-time-value">
+                                                                        {
+                                                                            isDifferentArrival(lastLeg)
+                                                                                ? (
+                                                                                    <>
+                                                                                        <span className="train-time-planned">{formatTime(lastLeg.plannedArrival)}</span>
+                                                                                        <span className="train-time-live is-delayed">{formatTime(lastLeg.arrival)}</span>
+                                                                                    </>
+                                                                                )
+                                                                                : (
+                                                                                    <span className="train-time-live is-on-time">{formatTime(lastLeg.arrival)}</span>
+                                                                                )
+                                                                        }
+                                                                    </span>
+                                                                </div>
                                                             </div>
-                                                            <div><FontAwesomeIcon icon={faClock}/>&nbsp; Arrival: {
-                                                                    isDifferentArrival(journey.legs[journey.legs.length - 1])
-                                                                        ? (
-                                                                            <div>
-                                                                                <div
-                                                                                    style={{
-                                                                                        textDecoration: 'line-through'
-                                                                                    }}>
-                                                                                    {formatTime(journey.legs[journey.legs.length - 1].plannedArrival)}
-                                                                                </div>
-                                                                                <div
-                                                                                    style={{
-                                                                                        color: 'red'
-                                                                                    }}>
-                                                                                    {formatTime(journey.legs[journey.legs.length - 1].arrival)}
-                                                                                </div>
-                                                                            </div>
-                                                                        )
-                                                                        : (
-                                                                            <div
-                                                                                style={{
-                                                                                    color: 'green'
-                                                                                }}>{formatTime(journey.legs[journey.legs.length - 1].arrival)}</div>
-                                                                        )
-                                                                }
+                                                            <div className="train-times-footer">
                                                                 <div className="issue-count">
-                                                                    Issues: {countIssues(journey.legs)}
+                                                                    Issues: {issueCount}
                                                                 </div>
-                                                                <div className="train-delay-notification">
-                                                                    {/* {hasDelays && (
-                                                                            <div className="warning">
-                                                                                <FontAwesomeIcon icon={faExclamationTriangle} /> Some Trains are delayed
-                                                                            </div>
-                                                                        )} */
-                                                                    }
+                                                                <div className="toggle-details" onClick={() => toggleDetails(index)} aria-expanded={expandedTrain === index}>
+                                                                    <span>Details</span>
+                                                                    <FontAwesomeIcon
+                                                                        icon={expandedTrain === index
+                                                                            ? faChevronUp
+                                                                            : faChevronDown}
+                                                                        className="toggle-icon"/>
                                                                 </div>
                                                             </div>
-                                                            <div className="toggle-details" onClick={() => toggleDetails(index)}>
-                                                                <span>Details</span>
-                                                                <FontAwesomeIcon
-                                                                    icon={expandedTrain === index
-                                                                        ? faChevronUp
-                                                                        : faChevronDown}
-                                                                    className="toggle-icon"/>
-                                                            </div>
-                                                            {
-                                                                expandedTrain === index && (
-                                                                    <div className="train-details">
+                                                            <div className={`train-details ${expandedTrain === index ? 'is-open' : ''}`}>
                                                                         <div className="train-details-header">
                                                                             <FontAwesomeIcon icon={faLocationDot}/>&nbsp; {/* From and to */}
                                                                             {
@@ -510,38 +572,39 @@ const Test = () => {
                                                                                 trainLegs.map((leg, legIndex) => (
                                                                                     <React.Fragment key={legIndex}>
                                                                                         <li
-                                                                                            className={`detailed-item cursor-pointer ${getClassForTrain(leg.line)}`}
+                                                                                            className={`detailed-item leg-stagger cursor-pointer ${getClassForTrain(leg.line)}`}
+                                                                                            style={{animationDelay: `${legIndex * 90}ms`}}
                                                                                             onClick={() => redirectToTripDetails(leg)}>
-                                                                                            <div>
-                                                                                                <FontAwesomeIcon icon={faTrain}/> {
-                                                                                                    leg.line
-                                                                                                        ? leg.line.name
-                                                                                                        : 'Unknown Train'
-                                                                                                }
-                                                                                                {"(" + leg.origin.name}
-                                                                                                &nbsp;- {leg.destination.name + ")"}
+                                                                                            <div className="leg-card-head">
+                                                                                                <div>
+                                                                                                    <FontAwesomeIcon icon={faTrain}/> {
+                                                                                                        leg.line
+                                                                                                            ? leg.line.name
+                                                                                                            : 'Unknown Train'
+                                                                                                    }
+                                                                                                </div>
+                                                                                                <div className="leg-card-time">{formatTime(leg.departure)} - {formatTime(leg.arrival)}</div>
                                                                                             </div>
-                                                                                            <div>
-                                                                                                <FontAwesomeIcon icon={faClock}/> {formatTime(leg.departure)}
-                                                                                                &nbsp;- {formatTime(leg.arrival)}
-                                                                                            </div>
-                                                                                            <div>
-                                                                                                <FontAwesomeIcon icon={faSubway}/>&nbsp; Platform {leg.departurePlatform || '--'}
-                                                                                            </div>
-                                                                                            <div>
-                                                                                                <FontAwesomeIcon icon={faArrowRight}/>&nbsp; Dir.: {leg.direction}
-                                                                                            </div>
-                                                                                            <div>
-                                                                                                <FontAwesomeIcon icon={faSignOutAlt}/>&nbsp; Exit: {
-                                                                                                    leg.destination
-                                                                                                        ? leg.destination.name
-                                                                                                        : '--'
-                                                                                                }
+                                                                                            <div className="leg-card-route">{leg.origin.name} - {leg.destination.name}</div>
+                                                                                            <div className="leg-card-grid">
+                                                                                                <div>
+                                                                                                    <FontAwesomeIcon icon={faSubway}/>&nbsp; Platform {leg.departurePlatform || '--'}
+                                                                                                </div>
+                                                                                                <div>
+                                                                                                    <FontAwesomeIcon icon={faArrowRight}/>&nbsp; Dir.: {leg.direction || '--'}
+                                                                                                </div>
+                                                                                                <div>
+                                                                                                    <FontAwesomeIcon icon={faSignOutAlt}/>&nbsp; Exit: {
+                                                                                                        leg.destination
+                                                                                                            ? leg.destination.name
+                                                                                                            : '--'
+                                                                                                    }
+                                                                                                </div>
                                                                                             </div>
                                                                                         </li>
                                                                                         {
                                                                                             legIndex < trainLegs.length - 1 && (
-                                                                                                <li className="detailed-item change-info">
+                                                                                                <li className="detailed-item change-info leg-stagger" style={{animationDelay: `${legIndex * 90 + 45}ms`}}>
                                                                                                     <FontAwesomeIcon icon={faExchangeAlt}/> {formatChangeInfo(leg, trainLegs[legIndex + 1])}
                                                                                                 </li>
                                                                                             )
@@ -558,8 +621,6 @@ const Test = () => {
                                                                         </div>
 
                                                                     </div>
-                                                                )
-                                                            }
                                                         </div>
                                                     </li>
                                                 );

@@ -8,8 +8,6 @@ The Website on witch it runs... or should run... is [ontrack.macistry.com](https
 ## What makes OnTrack special in comparison to other Rail Planners?
 
 - OnTrack provides results in just a few seconds (Depending on the distance it's often milliseconds too)
-- OnTrack covers entire Europe... other Railplanners don't work properly in other countries (OEBB Scotty e.g. is quite slow when it comes to other countries)
+- OnTrack covers entire Europe... other Railplanners don't work properly in other countries
 - OnTrack is open source
-- ...yeah...this was basically everything...
-- Ah yeah... developed by a 17 y/o Austrian Citizen :P
 

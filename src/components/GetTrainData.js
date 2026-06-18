@@ -89,7 +89,7 @@ export let fetchJourneys = async (
             excludedTrains = [];
         }
 
-        if (maxResults == 0 || maxResults < 0 || maxResults === undefined || maxResults === null || maxResults === '' || maxResults.length == 0) {
+        if (!maxResults || Number(maxResults) <= 0) {
             maxResults = false;
             console.log("Max Results: ", maxResults);
         }
@@ -150,7 +150,6 @@ export let fetchJourneys = async (
                 case "RE":
                 case "IR":
                 case "RB":
-                case "D":
                     if (!regionalExpressExcluded) {
                         url += `&regionalExpress=false`;
                         regionalExpressExcluded = true;
@@ -207,21 +206,6 @@ const integratePlatformDetails = (journeys, platformDetails) => {
     // Implement logic to merge platform details with journeys if necessary
     return journeys;
 };
-
-const fetchArrivalPlatform = async (fromId, toId) => {
-    try {
-        const response = await fetch(
-            `${API_BASE_URL}/journeys?from=${fromId}&to=${toId}`
-        );
-        const result = await response.json();
-        return result;
-    } catch (error) {
-        console.error('Error fetching platform details:', error);
-        return {};
-    }
-};
-
-const calculateChangeTimeInMin = (journey) => {}
 
 export const calculateChangeTime = (arrival, departure) => {
     const arrivalTime = new Date(arrival);
@@ -314,7 +298,7 @@ export const countIssues = (legs) => {
     // Also check the last leg for arrival issues
     const lastLeg = legs[legs.length - 1];
     console.log("lastLeg", lastLeg.departure, lastLeg.plannedDeparture)
-    if (lastLeg && isDifferentArrival(lastLeg) || lastLeg && isDifferentDeparture(lastLeg)) {
+    if (lastLeg && (isDifferentArrival(lastLeg) || isDifferentDeparture(lastLeg))) {
         issueCount++;
         // hasDelays === true
     }
@@ -378,7 +362,6 @@ export const formatChangeInfo = (prevLeg, nextLeg) => {
     const departurePlatform = nextLeg.departurePlatform || '--';
     const arrivalTime = formatTime(prevLeg.arrival);
     const departureTime = formatTime(nextLeg.departure);
-    const changeDuration = calculateChangeTime(prevLeg.arrival, nextLeg.departure);
 
     return (
         <div>
